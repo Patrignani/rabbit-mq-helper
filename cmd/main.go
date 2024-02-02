@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"log"
+	"time"
 
 	rabbitmqhelper "github.com/Patrignani/rabbit-mq-helper"
 )
@@ -105,4 +107,48 @@ func main() {
 		Subscribe("test3", s3).
 		Run(ctx)
 
+}
+
+func send() {
+	ctx := context.Background()
+
+	publish := rabbitmqhelper.NewRabbitPublish("amqp://guest:guest@localhost:5672/", 5).
+		RegisterSendOptions(&rabbitmqhelper.SendOptions{
+			Exchange: rabbitmqhelper.ExchangeOptions{
+				Name:       "cash-flow",
+				Kind:       "fanout",
+				Durable:    true,
+				AutoDelete: false,
+				Internal:   false,
+				NoWait:     false,
+			},
+		})
+
+	body := Auditory{
+		EntityId: "22315",
+		DatedIn:  time.Now(),
+		Type:     "test",
+		Entity:   "test",
+		ClientId: "56898",
+		UserId:   "465463",
+		Data: map[string]any{
+			"test":  "aaaaa",
+			"valor": 1000.08,
+		},
+	}
+
+	publish.Send(ctx, body, "cash-flow", "", false, false)
+
+	log.Printf(" [x] Sent %s", body)
+}
+
+type Auditory struct {
+	Id       string    `json:"id,omitempty" bson:"_id,omitempty"`
+	EntityId string    `json:"entityId" bson:"entity_id"`
+	Type     string    `json:"type" bson:"type"`
+	Entity   string    `json:"entity" bson:"entity"`
+	DatedIn  time.Time `json:"datedIn" bson:"dated_in"`
+	ClientId string    `json:"clientId" bson:"client_id"`
+	UserId   string    `json:"userId" bson:"user_id"`
+	Data     any       `json:"data" bson:"data"`
 }
