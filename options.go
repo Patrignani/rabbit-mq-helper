@@ -47,3 +47,7 @@ type Subscribe struct {
 	Bind     BindOptions
 	Consume  ConsumeOptions
 }
+
+type SendOptions struct {
+	Exchange ExchangeOptions
+}
