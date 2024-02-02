@@ -25,6 +25,13 @@ func NewRabbitPublish(url string, sendTimeoutSecond int) *RabbitPublish {
 	}
 }
 
+func (p *RabbitPublish) RegisterSendOptions(options *SendOptions) *RabbitPublish {
+
+	p.SendOptions[options.Exchange.Name] = options
+
+	return p
+}
+
 func (p *RabbitPublish) Send(ctx context.Context, data any, name, key string, mandatory, immediate bool) error {
 	conn, err := amqp.Dial(p.con.Url)
 
