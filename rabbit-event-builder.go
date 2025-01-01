@@ -84,9 +84,19 @@ func (r *RabbitEventBuider) Run(ctx context.Context) {
 		)
 		failOnError(err, "Failed to register a consumer")
 
+		if s.Consume.WorkConsume == 0 {
+			s.Consume.WorkConsume = 1
+		}
+
 		go func(action func(ctx context.Context, body []byte)) {
+			semaphore := make(chan struct{}, s.Consume.WorkConsume)
+
 			for d := range msgs {
-				action(ctx, d.Body)
+				semaphore <- struct{}{}
+				go func(body []byte) {
+					defer func() { <-semaphore }()
+					action(ctx, body)
+				}(d.Body)
 			}
 		}(s.Consume.Action)
 

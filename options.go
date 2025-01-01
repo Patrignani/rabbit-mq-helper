@@ -32,13 +32,14 @@ type BindOptions struct {
 }
 
 type ConsumeOptions struct {
-	Consumer  string
-	AutoAck   bool
-	Exclusive bool
-	NoLocal   bool
-	NoWait    bool
-	Args      map[string]interface{}
-	Action    func(ctx context.Context, body []byte)
+	Consumer    string
+	AutoAck     bool
+	Exclusive   bool
+	NoLocal     bool
+	NoWait      bool
+	Args        map[string]interface{}
+	Action      func(ctx context.Context, body []byte)
+	WorkConsume int
 }
 
 type Subscribe struct {
